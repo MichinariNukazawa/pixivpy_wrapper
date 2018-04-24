@@ -29,6 +29,7 @@ datafile = os.path.join(saving_direcory_path, "data.json")
 # より評価の高い画像のみを集めたい場合はこの閾値を変更する (ex. 1000, 4000, 10000)
 min_score = 0
 # ページ数(x30枚がマッチ)(1000ページ(1~999?)まで)(合計20000画像まで？)
+page_start = 1
 page_num = 2
 
 # 画像ダウンロードの間隔
@@ -56,7 +57,7 @@ os.makedirs(saving_direcory_path, exist_ok=True)
 
 aapi = AppPixivAPI()
 
-for page in range(1, page_num + 1):
+for page in range(page_start, page_start + page_num):
 	sleep(page_sleep_sec)
 	#print("[%3d:%d]" % (page, page_num))
 
