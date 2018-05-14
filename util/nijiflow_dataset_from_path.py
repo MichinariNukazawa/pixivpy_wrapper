@@ -11,6 +11,7 @@ import logging
 import PIL.Image
 
 import sys
+import os
 import os.path
 
 
@@ -47,16 +48,23 @@ datas = json.loads(s)
 pp.pprint(len(datas))
 f.close()
 
-nijiflow_file = os.path.join(dir_path, "nijiflow.list")
+dst_dir_path = os.path.join(dir_path, "nijiflow_data")
+os.makedirs(dst_dir_path, exist_ok=True)
+
+nijiflow_file = os.path.join(dst_dir_path, "nijiflow.list")
 f = open(nijiflow_file, 'w')
 
 c = 0
 for i, data in enumerate(datas):
-	if(image_num <= c):
+	if (image_num <= c):
+		print("success %d image.(%d)" % (image_num, i))
 		break
 
 	#print("%d" % (data['id']))
 	if data["type"] != "illustration":
+		continue
+
+	if data["page_count"] != 1:
 		continue
 
 	for exclude_tag in exclude_tags:
@@ -80,7 +88,15 @@ for i, data in enumerate(datas):
 		logging.warning('Skipping %s mode image: %s', image.mode, image_filepath)
 		continue
 
+	dst_image_filepath = os.path.join(dst_dir_path, image_filename)
+	#if not os.path.exists(dst_image_filepath):
+	image.resize((224, 224))
+	image.save(dst_image_filepath)
+
 	#print("%s" % (image_filepath), flush=True)
 	f.write("%s %s\n" % (image_filename, class_id))
 	c += 1
+
+	if 0 == (c % 100):
+		print("%4d/%4d." % (c, image_num))
 
