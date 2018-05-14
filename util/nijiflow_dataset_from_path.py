@@ -74,24 +74,34 @@ for i, data in enumerate(datas):
 
 	image_filename = os.path.basename(data['image_urls']['large'])
 
-	name, ext = os.path.splitext(image_filename)
-	if ".jpg" != ext:
-		continue
-
 	image_filepath = os.path.join(dir_path, image_filename)
 	try:
 		image = PIL.Image.open(image_filepath)
 	except Exception:
 		logging.exception('Failed to open: %s', image_filepath)
 		continue
-	if image.mode != 'RGB':
-		logging.warning('Skipping %s mode image: %s', image.mode, image_filepath)
-		continue
 
-	dst_image_filepath = os.path.join(dst_dir_path, image_filename)
+	name, ext = os.path.splitext(image_filename)
+	dst_image_filepath = os.path.join(dst_dir_path, name + ".jpg")
 	#if not os.path.exists(dst_image_filepath):
-	image.resize((224, 224))
-	image.save(dst_image_filepath)
+
+	try:
+		dst_image = image.resize((224, 224))
+		if dst_image.mode == 'RGB':
+			pass
+		elif dst_image.mode == 'RGBA':
+			#dst_image.convert("RGB")
+			tmp_dst_image = PIL.Image.new("RGB", (224, 224), (255, 255, 255))
+			tmp_dst_image.paste(dst_image, mask=dst_image.split()[3]) # 3 is the alpha channel
+			dst_image = tmp_dst_image
+		else:
+			#logging.exception('skip: %s %s', image_filepath, dst_image.mode)
+			continue
+
+		dst_image.save(dst_image_filepath)
+	except Exception:
+		logging.exception('Failed to convert: %s', image_filepath)
+		continue
 
 	#print("%s" % (image_filepath), flush=True)
 	f.write("%s %s\n" % (image_filename, class_id))
