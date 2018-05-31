@@ -8,12 +8,12 @@ trap 'echo "error:$0($LINENO) \"$BASH_COMMAND\" \"$@\""' ERR
 TAG="鳩羽つぐ"
 DATE=$(date +'%Y%m%d_%H%M%S')
 
-echo "start: $(date +'%Y-%m-%d %H:%M:%S')" > download_latest.log 2>&1
+echo "start: $(date +'%Y-%m-%d %H:%M:%S')" 2>&1 | tee download_latest.log
 
-python3 pixiv_tag_download.py "${TAG}" "${HOME}/pixiv_data/image_" >> download_latest.log 2>&1
+python3 pixiv_tag_download.py "${TAG}" "${HOME}/pixiv_data/image_" 2>&1 | tee -a download_latest.log
 RES=$?
 
-echo "end: ${RES} $(date +'%Y-%m-%d %H:%M:%S')" >> download_latest.log 2>&1
+echo "end: ${RES} $(date +'%Y-%m-%d %H:%M:%S')" 2>&1 | tee -a download_latest.log
 
 cp download_latest.log "download_${TAG}_${DATE}.log"
 
